@@ -4,16 +4,19 @@
 #include<string>
 using std::string;
 
+typedef IndexBlock* IndexBlockPointer;
+
 class IndexBlock {
 public:
-	std::string tablename;
-	std::string attrname;
-	char* address;
+	string tableName;
+	string attributeName;
+	string indexName;
 
 	bool dirty;
 	bool locked;
 
-	IndexBlock *pre, *next;
+	//int blockNumber;
+	IndexBlockPointer prev, next;
 
 	IndexBlock();
 	~IndexBlock();
