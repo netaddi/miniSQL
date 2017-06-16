@@ -1,10 +1,9 @@
 #ifndef BufferManager_hpp
 #define BufferManager_hpp
 
-#include<map>
-using std::map;
-//#include<list>
-//using std::list;
+//#include<map>
+#include<unordered_map>
+using namespace std;
 
 #include"IndexBlock.hpp"
 #include"RecordBlock.hpp"
@@ -12,49 +11,55 @@ using std::map;
 #define Record_Block_Capacity  20000
 #define Index_Block_Capacity 20000
 
-//BufferManager--双链表实现
+//BufferManager--using list and std::unordered_map
 class BufferManager {
 private:
-	map<string, RecordBlockPointer>RecordBlockMap;
-	map<string, IndexBlockPointer>IndexBlockMap;
+	//map<string, RecordBlock*>RecordBlockMap;
+	//map<string, IndexBlock*>IndexBlockMap;
+	unordered_map<string, RecordBlock*>RecordBlockMap;
+	unordered_map<string, IndexBlock*>IndexBlockMap;
 
-	//list<RecordBlock>RecordPool;
-	//list<IndexBlock>IndexPool;
-	IndexBlockPointer ihead, itail;
-	RecordBlockPointer rhead, rtail;
+	IndexBlock* ihead, *itail;
+	RecordBlock* rhead, *rtail;
 
-	RecordBlockPointer getNewPoolBlock();
-	IndexBlockPointer getNewPoolBlock();
+	void lockBlock(RecordBlock* pos);
+	void lockBlock(IndexBlock* pos);
 
-	void closeBlock(RecordBlockPointer pos);
-	void closeBlock(IndexBlockPointer pos);
+	void deattach(RecordBlock* pos);
+	void deattach(IndexBlock* pos);
 
-	bool maxSizeRecord();
-	bool maxSizeIndex();
+	void attach(RecordBlock* pos);
+	void attach(IndexBlock* pos);
 
 	int RecordSize;
 	int IndexSize;
 
 public:
 	BufferManager();
-	BufferManager(int size);
+	//BufferManager(int size);
 	~BufferManager();
 
-	RecordBlockPointer getRecordBlock(string tableName);
-	bool craeteTable(string tableName);
+	RecordBlock* getNewPoolRecordBlock();
+	IndexBlock* getNewPoolIndexBlock();
+
+	void closeBlock(RecordBlock* pos);
+	void closeBlock(IndexBlock* pos);
+
+	RecordBlock* getRecordBlock(string tableName);
+	bool createTable(string tableName);
 	bool dropTable(string tableName);
 	
-	IndexBlockPointer getIndexBlock(string tableName,string attr,string indexName);
-	IndexBlockPointer newIndexBlock(string tableName, string attr, string indexName);
+	IndexBlock* getIndexBlock(string tableName,string attr,string indexName);
+	bool createIndex(string tableName, string attr, string indexName);
 	bool deleteIndexBlock(string tableName, string attr, string indexName);
 };
 
 /*
-//BufferManager--数组的实现
+//BufferManager--using array
 class BufferManager {
 private:
-	map<string, RecordBlockPointer>RecordBlockMap;
-	map<string, IndexBlockPointer>IndexBlockMap;
+	map<string, RecordBlock*>RecordBlockMap;
+	map<string, IndexBlock*>IndexBlockMap;
 
 	RecordBlock* RecordPool[Record_Block_Capacity];
 	IndexBlock* IndexPool[Index_Block_Capacity];
@@ -62,11 +67,11 @@ private:
 	int curRecordPos;
 	int curIndexPos;
 
-	RecordBlockPointer getNewPoolBlock();
-	IndexBlockPointer getNewPoolBlock();
+	RecordBlock* getNewPoolBlock();
+	IndexBlock* getNewPoolBlock();
 
-	void closeBlock(RecordBlockPointer pos);
-	void closeBlock(IndexBlockPointer pos);
+	void closeBlock(RecordBlock* pos);
+	void closeBlock(IndexBlock* pos);
 
 	bool maxSizeRecord();
 	bool maxSizeIndex();
@@ -76,12 +81,12 @@ public:
 	BufferManager(int size);
 	~BufferManager();
 
-	RecordBlockPointer getRecordBlock(string tableName);
+	RecordBlock* getRecordBlock(string tableName);
 	bool craeteTable(string tableName);
 	bool dropTable(string tableName);
 
-	IndexBlockPointer getIndexBlock(string tableName, string attr, string indexName);
-	IndexBlockPointer newIndexBlock(string tableName, string attr, string indexName);
+	IndexBlock* getIndexBlock(string tableName, string attr, string indexName);
+	IndexBlock* newIndexBlock(string tableName, string attr, string indexName);
 	bool deleteIndexBlock(string tableName, string attr, string indexName);
 };
 */

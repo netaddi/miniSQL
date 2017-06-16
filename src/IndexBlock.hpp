@@ -3,23 +3,23 @@
 
 #include<string>
 using std::string;
-
-typedef IndexBlock* IndexBlockPointer;
+#define INDEX_LENGTH 4096
 
 class IndexBlock {
 public:
 	string tableName;
 	string attributeName;
 	string indexName;
+	char address[INDEX_LENGTH];
 
 	bool dirty;
 	bool locked;
 
 	//int blockNumber;
-	IndexBlockPointer prev, next;
+	IndexBlock* prev, *next;
 
 	IndexBlock();
-	~IndexBlock();
+	//~IndexBlock();
 };
 
 #endif//IndexBlock_hpp

@@ -4,31 +4,21 @@
 #include<string>
 using std::string;
 
-#define RECORD_LENGTH 512	
-#define BLOCK_RECORDS 8	
-
-typedef RecordBlock* RecordBlockPointer;
-
-class Record {
-public:
-	char data[RECORD_LENGTH];
-	bool empty;
-};
+#define RECORD_LENGTH 4096
 
 class RecordBlock {
 public:
 	string tablename;	
-	Record records[BLOCK_RECORDS];	
-	int recordnum;	
+	char records[RECORD_LENGTH];	
 
 	// blockNumber;
-	RecordBlockPointer prev, next;
+	RecordBlock* prev, *next;
 
 	bool dirty;		
 	bool locked;	
 
 	RecordBlock();
-	~RecordBlock();
+	//~RecordBlock();
 };
 
 #endif//RecordBlock_hpp
