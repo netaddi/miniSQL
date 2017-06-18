@@ -15,3 +15,7 @@ parser.o : src/parser.h src/parser.cpp
 
 clean:
 	rm *.o
+
+cat_test:
+	$(CC) test/cat_test.cpp src/CatalogManager.cpp -o test/cat_test $(Flags)
+	./test/cat_test

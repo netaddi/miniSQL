@@ -32,7 +32,6 @@ public:
     bool dropIndex(IndexInfo indexInfo);
     bool dopAllIndexFromTable(string tableName);
     bool insertIntoIndex(IndexInfo index, Element value, int offset);
-    // template <class T>
     bool deleteFromIndex(IndexInfo index, Element value);
 
     vector<int> queryIndex(IndexInfo index, IndexQuery query);

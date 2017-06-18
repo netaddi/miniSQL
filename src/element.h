@@ -6,10 +6,12 @@ using std::vector;
 #ifndef _ELEMENT_H_
 #define _ELEMENT_H_
 
+enum dataTypes { INT, FLOAT, STRING };
+
 class Attribute
 {
 public:
-    string type;
+    int type;
     string name;
     int size;
     bool isUnique;
@@ -20,22 +22,21 @@ public:
         isUnique = unique;
         if (typeName.length() == 3)
         {
-            type = "int";
+            type = INT;
             size = sizeof(int);
         }
         if (typeName.length() == 5)
         {
-            type = "float";
+            type = FLOAT;
             size = sizeof(float);
         }
     };
-    Attribute(string attrName, int length, bool unique)
-    {
-        isUnique = unique;
-        name = attrName;
-        type = "string";
-        size = length;
-    };
+    Attribute(string attrName, int length, bool unique):
+        type(STRING), name(attrName), size(length), isUnique(unique){};
+
+    Attribute(string attrName, int type, int size, bool unique):
+        type(type), name(attrName), size(size), isUnique(unique){};
+
 };
 
 class TableInfo
@@ -43,8 +44,12 @@ class TableInfo
 public:
     string tableName;
     string primaryKey;
-    int attributeCount;
+    // int attributeCount;
     vector<Attribute> attributes;
+    TableInfo(string tableName, string primaryKey, vector<Attribute> attrs):
+        tableName(tableName), primaryKey(primaryKey), attributes(attrs){};
+    // TableInfo(string tableName, string primaryKey, int attrCnt, vector<Attribute> attrs):
+    //     tableName(tableName), primaryKey(primaryKey), attributeCount(attrCnt), attributes(attrs){};
 };
 
 class IndexInfo
@@ -55,9 +60,15 @@ public:
     // Attribute attribute;
     string attributeName;
 
-    IndexInfo(string table, string attribute, string index):indexName(index), tableName(table), attributeName(attribute){};
-    IndexInfo(string table, string attribute):tableName(table), attributeName(attribute){};
+    IndexInfo(string table, string attribute, string index):
+        indexName(index), tableName(table), attributeName(attribute){};
+    IndexInfo(string table, string attribute):
+        tableName(table), attributeName(attribute){};
     IndexInfo(string index): indexName(index){};
+    bool isValid()
+    {
+        return (indexName != "");
+    }
 };
 
 class Element
