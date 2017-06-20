@@ -19,3 +19,11 @@ clean:
 cat_test:
 	$(CC) test/cat_test.cpp src/CatalogManager.cpp -o test/cat_test $(Flags)
 	./test/cat_test
+
+buf_test:
+	$(CC) test/bufManTest.cpp src/BufferManager.cpp src/RecordBlock.cpp -o test/buf_test $(Flags)
+	./test/buf_test
+
+bpt_test:
+	$(CC) test/bpt_test.cpp -o test/bpt_test $(Flags)
+	./test/bpt_test

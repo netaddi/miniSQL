@@ -17,7 +17,7 @@ private:
 	//map<string, RecordBlock*>RecordBlockMap;
 	//map<string, IndexBlock*>IndexBlockMap;
 	unordered_map<string, RecordBlock*>RecordBlockMap;
-	unordered_map<string, IndexBlock*>IndexBlockMap;
+	unordered_map<string, IndexBlock*>indexBlockMap;
 
 	IndexBlock* ihead, *itail;
 	RecordBlock* rhead, *rtail;
@@ -48,8 +48,8 @@ public:
 	RecordBlock* getRecordBlock(string tableName);
 	bool createTable(string tableName);
 	bool dropTable(string tableName);
-	
-	IndexBlock* getIndexBlock(string tableName,string attr,string indexName);
+
+	IndexBlock* getIndexBlock(string tableName,string attr, int blockId);
 	bool createIndex(string tableName, string attr, string indexName);
 	bool deleteIndexBlock(string tableName, string attr, string indexName);
 };

@@ -77,8 +77,23 @@ public:
     int intData;
     float floatData;
     string stringData;
-    string type;
+    int type;
+    int length;
+
+    Element(int i) :  intData(i), type(INT){};
+    Element(float f) : floatData(f), type(FLOAT){};
+    Element(string s, int length): stringData(s), length(length)
+    {
+        s.resize(length);
+    };
 
 };
+
+bool operator<(const Element &v1, const Element &v2);
+bool operator>(const Element &v1, const Element &v2);
+bool operator>=(const Element &v1, const Element &v2);
+bool operator<=(const Element &v1, const Element &v2);
+bool operator==(const Element &v1, const Element &v2);
+bool operator!=(const Element &v1, const Element &v2);
 
 #endif

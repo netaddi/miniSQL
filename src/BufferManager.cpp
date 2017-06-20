@@ -1,7 +1,9 @@
-#include"BufferManager.hpp"
+#include "BufferManager.hpp"
 
-#include<fstream>
-#include<assert.h>
+#include "utils.h"
+
+#include <fstream>
+#include <assert.h>
 using namespace std;
 
 //private functions
@@ -75,7 +77,7 @@ BufferManager::BufferManager() {
 	ihead = itail = nullptr;
 	rhead = rtail = nullptr;
 	RecordSize = IndexSize = 0;
-	
+
 }
 
 /*BufferManager::BufferManager(int size) {
@@ -168,8 +170,8 @@ void BufferManager::closeBlock(IndexBlock* pos) {
 	deattach(pos);
 	delete(pos);
 	IndexSize--;
-	unordered_map<string, IndexBlock*>::iterator it = IndexBlockMap.find(fileName);
-	IndexBlockMap.erase(it);
+	unordered_map<string, IndexBlock*>::iterator it = indexBlockMap.find(fileName);
+	indexBlockMap.erase(it);
 }
 
 //search this block;if not exist,read from file
@@ -229,37 +231,39 @@ bool BufferManager::dropTable(string tableName) {
 		return false;
 }
 
+string getIndexFileName(string tableName, string attr, int blockId)
+{
+	return "data/index/" + tableName + "____ATTR__" + attr + "___NO__" + to_string(blockId);
+}
+
 //search this block;if not exist,read from file;if not exist such file,create it
-IndexBlock* BufferManager::getIndexBlock(string tableName, string attr, string indexName) {
-	string path = "data/index" + tableName + attr;
-	string fileName = tableName + attr + indexName;//need to modify
-	unordered_map<string, IndexBlock*>::iterator it = IndexBlockMap.find(fileName);
-	if (it != IndexBlockMap.end())
+IndexBlock* BufferManager::getIndexBlock(string tableName, string attr, int blockId) {
+
+	string fileName = getIndexFileName(tableName, attr, blockId);
+
+	if (indexBlockMap.find(fileName) != indexBlockMap.end())
 	{
-		deattach(it->second);
-		attach(it->second);
-		return ihead;
+		return indexBlockMap[fileName];
+	}
+
+	IndexBlock * tmpBlock = new IndexBlock(tableName, attr, blockId);
+	indexBlockMap[fileName] = tmpBlock;
+	if (checkFileExistance(fileName))
+	{
+		ifstream blockFile;
+		blockFile.open(fileName, ios::binary);
+		// IndexBlock * tmpBlock = new IndexBlock();
+		blockFile.read(tmpBlock -> address, INDEX_LENGTH);
+		blockFile.close();
 	}
 	else
 	{
-		ifstream fin;
-		fin.open(path + fileName, ios::in| ios::binary);
-		if (fin)
-		{
-			IndexBlock* newhead = getNewPoolIndexBlock();
-			fin.read(newhead->address, sizeof(newhead->address));
-			newhead->tableName = tableName;
-			newhead->attributeName = attr;
-			newhead->indexName = indexName;
-			IndexBlockMap[fileName] = newhead;
-			return ihead;
-		}
-		else
-		{
-			createIndex(tableName,attr,indexName);
-			return getIndexBlock(tableName, attr, indexName);
-		}
+		//create file
+		ofstream newBlockFile;
+		newBlockFile.open(fileName, ios::binary);
+		newBlockFile.close();
 	}
+	return tmpBlock;
 }
 
 bool BufferManager::createIndex(string tableName, string attr, string indexName) {
@@ -279,13 +283,13 @@ bool BufferManager::createIndex(string tableName, string attr, string indexName)
 bool BufferManager::deleteIndexBlock(string tableName, string attr, string indexName) {
 	string path = "data/index" + tableName + attr;
 	string fileName = tableName + attr + indexName;//need to modify
-	unordered_map<string, IndexBlock*>::iterator it = IndexBlockMap.find(fileName);
-	if (it != IndexBlockMap.end())
+	unordered_map<string, IndexBlock*>::iterator it = indexBlockMap.find(fileName);
+	if (it != indexBlockMap.end())
 	{
 		deattach(it->second);
 		delete(it->second);
 		IndexSize--;
-		IndexBlockMap.erase(it);
+		indexBlockMap.erase(it);
 		string tmp = path + fileName;
 		return remove(tmp.c_str());
 	}
