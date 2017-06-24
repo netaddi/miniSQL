@@ -90,7 +90,15 @@ vector<Record> RecordManager::queryWithCondition(TableInfo table, vector<QueryBa
         vector<Element * > elementsInRecord;
         for (auto & attr : table.attributes )
         {
-            elementsInRecord.push_back(new Element());
+            Element * tempElement = new Element(attr.type, attr.size, totalBuffer + bufferIter + elementPtr);
+            bool matchFail = false;
+            for (auto & query : querys)
+            {
+
+            }
+
+            elementsInRecord.push_back();
+            elementPtr += attr.size;
         }
     }
 }
