@@ -1,298 +1,381 @@
-#include "BufferManager.hpp"
+#include "BufferManager.h"
+#include "stdafx.h"
+#if DBG
+// #include "debug.h"
+#endif
 
-#include "utils.h"
+// =============== BufferPage ==============
 
-#include <fstream>
-#include <assert.h>
-using namespace std;
-
-//private functions
-
-//lock the block so it cannot be replaced
-void BufferManager::lockBlock(RecordBlock* pos) {
-	pos->locked = true;
-}
-void BufferManager::lockBlock(IndexBlock* pos) {
-	pos->locked = true;
+inline string BufferPage::getPageFileName()
+{
+	return "data/record/_TBL_" + table
+	     + "__PageID_" + to_string(pageId) + "___";
 }
 
-//delete a block from list
-void BufferManager::deattach(RecordBlock* pos) {
-	assert(pos);
-	if (pos == rhead)
-		rhead = pos->next;
-	else
-		pos->prev->next = pos->next;
-	if (pos == rtail)
-		rtail = pos->prev;
-	else
-		pos->next->prev = pos->prev;
-}
-void BufferManager::deattach(IndexBlock* pos) {
-	assert(pos);
-	if (pos == ihead)
-		ihead = pos->next;
-	else
-		pos->prev->next = pos->next;
-	if (pos == itail)
-		itail = pos->prev;
-	else
-		pos->next->prev = pos->prev;
+inline bool BufferPage::isFull()
+{
+	return (usedLength + recordLength >= PAGE_SIZE);
 }
 
-//insert a new block to list head
-void BufferManager::attach(RecordBlock* pos) {
-	if (pos == nullptr)
-		return;
-	if (rhead == nullptr)
+bool BufferPage::writeBackPage()
+{
+	#if DBG
+	cout << "filename : " << pageFileName << endl;
+	cout << "length : " << usedLength << endl;
+	#endif
+	if (dirty)
 	{
-		rhead = pos;
-		rhead->prev = rhead->next = nullptr;
+		ofstream pageWriteStream;
+		pageWriteStream.open(pageFileName, ios::out | ios::binary);
+		// write the used page first.
+		pageWriteStream.write(reinterpret_cast<const char *> (&usedLength), sizeof(int));
+		pageWriteStream.write(data, PAGE_SIZE);
+		pageWriteStream.close();
+		dirty = pageWriteStream.bad();
+		return pageWriteStream.good();
 	}
-	else
-	{
-		rhead->prev = pos;
-		pos->next = rhead;
-		rhead = pos;
-	}
+	// else the page is not changed
+	return true;
 }
-void BufferManager::attach(IndexBlock* pos) {
-	if (pos == nullptr)
-		return;
-	if (ihead == nullptr)
+
+bool BufferPage::reloadPage()
+{
+	dirty = false;
+	ifstream pageReadStream;
+	pageReadStream.open(pageFileName, ios::in | ios::binary);
+	pageReadStream.read(reinterpret_cast<char * > (&usedLength), sizeof(int));
+	pageReadStream.read(data, PAGE_SIZE);
+	pageReadStream.close();
+	return pageReadStream.good();
+}
+
+int BufferPage::insertDataToPage(char * newData)
+{
+	if (isFull())
 	{
-		ihead = pos;
-		ihead->prev = ihead->next = nullptr;
+		return -1;
 	}
 	else
 	{
-		ihead->prev = pos;
-		pos->next = ihead;
-		ihead = pos;
-	}
-}
-
-//public functions
-BufferManager::BufferManager() {
-	ihead = itail = nullptr;
-	rhead = rtail = nullptr;
-	RecordSize = IndexSize = 0;
-
-}
-
-/*BufferManager::BufferManager(int size) {
-	ihead = itail = nullptr;
-	rhead = rtail = nullptr;
-	for (int i = 0; i < size; i++)
-	{
-		RecordBlock* emptyRecord = new RecordBlock();
-	}
-	for (int i = 0; i < size; i++)
-	{
-		IndexBlock* emptyIndex = new IndexBlock();
-	}
-	RecordSize = IndexSize = size;
-}*/
-
-BufferManager::~BufferManager() {
-	RecordBlock* cur1,*tmp1;
-	IndexBlock* cur2,*tmp2;
-	for (cur1 = rtail; cur1 !=nullptr ;cur1=cur1->prev)
-	{
-		tmp1 = cur1->prev;
-		closeBlock(cur1);
-		cur1 = tmp1;
-	}
-	for (cur2 = itail; cur2 != nullptr; cur2 = cur2->prev)
-	{
-		tmp2 = cur2->prev;
-		closeBlock(cur1);
-		cur2 = tmp2;
-	}
-}
-
-//get empty new record block
-RecordBlock* BufferManager::getNewPoolRecordBlock() {
-	RecordBlock* newhead = new RecordBlock;
-	newhead->next = rhead;
-	rhead->prev = newhead;
-	newhead->prev = nullptr;
-	rhead = newhead;
-	RecordSize++;
-	return rhead;
-}
-//get empty new index block
-IndexBlock* BufferManager::getNewPoolIndexBlock() {
-	IndexBlock* newhead = new IndexBlock;
-	newhead->next = ihead;
-	ihead->prev = newhead;
-	newhead->prev = nullptr;
-	ihead = newhead;
-	IndexSize++;
-	return ihead;
-}
-
-//write to files and remove this block and map
-void BufferManager::closeBlock(RecordBlock* pos) {
-	ofstream fout;
-	if (pos->locked) {
-		return;
-	}
-	string path = "data/record" + pos->tablename;
-	string fileName = pos->tablename + "";	//need to modify
-	fout.open(path + fileName, ios::out| ios::binary);
-	if (fout)
-	{
-		fout.write((char*)pos->records,sizeof(pos->records));
-		fout.close();
-	}
-	deattach(pos);
-	delete(pos);
-	RecordSize--;
-
-	unordered_map<string,RecordBlock*>::iterator it = RecordBlockMap.find(fileName);
-	RecordBlockMap.erase(it);
-}
-
-void BufferManager::closeBlock(IndexBlock* pos) {
-	ofstream fout;
-	if (pos->locked) {
-		return;
-	}
-	string path = "data/index" + pos->tableName+pos->attributeName;
-	string fileName = pos->tableName + pos->attributeName +pos->indexName;//need to modify
-	fout.open(path + fileName, ios::out| ios::binary);
-	if (fout)
-	{
-		fout.write(pos->address,4096);
-		fout.close();
-	}
-	deattach(pos);
-	delete(pos);
-	IndexSize--;
-	unordered_map<string, IndexBlock*>::iterator it = indexBlockMap.find(fileName);
-	indexBlockMap.erase(it);
-}
-
-//search this block;if not exist,read from file
-RecordBlock* BufferManager::getRecordBlock(string tableName) {
-	string path = "data/record" + tableName;
-	string fileName = tableName + "";	//need to modify
-	unordered_map<string, RecordBlock*>::iterator it = RecordBlockMap.find(fileName);
-	if (it != RecordBlockMap.end())
-	{
-		deattach(it->second);
-		attach(it->second);
-	}
-	else
-	{
-		ifstream fin;
-		fin.open(path + fileName, ios::in| ios::binary);
-		if (fin)
+		for (int i = 0; i < recordLength; i++)
 		{
-			RecordBlock* newhead = getNewPoolRecordBlock();
-			fin.read(newhead->records, sizeof(newhead->records));
-			newhead->tablename = tableName;
-			RecordBlockMap[fileName] = newhead;
-			fin.close();
+			data[usedLength + i] = newData[i];
+		}
+		// #if DBG
+		// 	cout << "read lenght: " << recordLength << endl;
+		// 	printData(data + usedLength, recordLength);
+		// #endif
+		usedLength += recordLength;
+		dirty = true;
+		return (usedLength - recordLength);
+	}
+}
+
+char * BufferPage::readRecordWithOffset(int offset)
+{
+	// char * returnData[recordLength];
+	// for (int i = 0; i < recordLength; i++)
+	// {
+	//
+	// }
+
+	// #if DBG
+	// 	cout << "read lenght: " << recordLength << endl;
+	// 	printData(data + offset, recordLength);
+	// #endif
+	return (data + offset);
+}
+
+bool BufferPage::deleteWithOffset(int offset)
+{
+	if (recordLength + offset > PAGE_SIZE)
+	{
+		return false;
+	}
+	else
+	{
+		for (int i = 0; i < recordLength; i++)
+		{
+			data[offset + i] = 255;
 		}
 	}
-	return rhead;
+	return true;
 }
 
-bool BufferManager::createTable(string tableName) {
-	string path = "data/record" ;
-	string fileName = tableName;
-	ofstream fout;
-	fout.open(path+fileName,ios::out |ios::binary);
-	if (fout)
-	{
-		fout.close();
-		return true;
-	}
-	else
-		return false;
-}
-
-bool BufferManager::dropTable(string tableName) {
-	string path = "data/record";
-	string fileName = tableName + "";	//
-	unordered_map<string,RecordBlock*>::iterator it = RecordBlockMap.find(fileName);
-	if (it != RecordBlockMap.end())
-	{
-		deattach(it->second);
-		delete(it->second);
-		RecordSize--;
-		RecordBlockMap.erase(it);
-		string tmp = path + fileName;
-		return remove(tmp.c_str());
-	}
-	else
-		return false;
-}
-
-string getIndexFileName(string tableName, string attr, int blockId)
+bool BufferPage::deleteWithCheckFunc(function<bool (char * )> checkDeletionFunction)
 {
-	return "data/index/" + tableName + "____ATTR__" + attr + "___NO__" + to_string(blockId);
+	for (int offset = 0; offset < usedLength; offset += recordLength)
+	{
+		if (checkDeletionFunction(data + offset))
+		{
+			deleteWithOffset(offset);
+		}
+	}
+	return true;
 }
 
-//search this block;if not exist,read from file;if not exist such file,create it
-IndexBlock* BufferManager::getIndexBlock(string tableName, string attr, int blockId) {
 
-	string fileName = getIndexFileName(tableName, attr, blockId);
+// =============== BufferPool ====================
 
-	if (indexBlockMap.find(fileName) != indexBlockMap.end())
+BufferPool::BufferPool(TableInfo & table):
+	table(table.tableName), recordLength(table.recordLength)
+{
+	activePageId = 0;
+	validPageLength = PAGE_SIZE - (PAGE_SIZE % recordLength);
+	reloadBuffer();
+	cout << "size: " << buffers.size() << endl;
+	if (buffers.size() == 0)
 	{
-		return indexBlockMap[fileName];
+		#if DBG
+			cout << "no buffer read from file" << endl;
+		#endif
+		addNewBufferToPool();
 	}
+	findactivePageId();
+	#if DBG
+		cout << "activePageId: " <<  activePageId << endl;
+	#endif
+};
 
-	IndexBlock * tmpBlock = new IndexBlock(tableName, attr, blockId);
-	indexBlockMap[fileName] = tmpBlock;
-	if (checkFileExistance(fileName))
-	{
-		ifstream blockFile;
-		blockFile.open(fileName, ios::binary);
-		// IndexBlock * tmpBlock = new IndexBlock();
-		blockFile.read(tmpBlock -> address, INDEX_LENGTH);
-		blockFile.close();
-	}
-	else
-	{
-		//create file
-		ofstream newBlockFile;
-		newBlockFile.open(fileName, ios::binary);
-		newBlockFile.close();
-	}
-	return tmpBlock;
+inline string BufferPool::getPageFileName(int id)
+{
+	return "data/record/_TBL_" + table
+	     + "__PageID_" + to_string(id) + "___";
 }
 
-bool BufferManager::createIndex(string tableName, string attr, string indexName) {
-	string path = "data/index" + tableName + attr;
-	string fileName = tableName + attr + indexName;
-	ofstream fout;
-	fout.open(path + fileName, ios::out | ios::binary);
-	if (fout)
+
+void BufferPool::addNewBufferToPool()
+{
+	#if DBG
+		cout << "append buffer page" << endl;
+	#endif
+	buffers.push_back(new BufferPage(table, recordLength, buffers.size()));
+	pageFull.push_back(false);
+	// bufferCount++;
+	dirty = true;
+};
+
+bool BufferPool::reloadBuffer()
+{
+	buffers.clear();
+	pageFull.clear();
+	int currentId = 0;
+	while(checkFileExistance(getPageFileName(currentId)))
 	{
-		fout.close();
-		return true;
+		BufferPage* thisPage = new BufferPage(table, recordLength, currentId);
+		if(thisPage -> reloadPage())
+		{
+			buffers.push_back(thisPage);
+			pageFull.push_back(thisPage -> isFull());
+			if (activePageId < 0 && (!(thisPage -> isFull())))
+			{
+				activePageId = currentId;
+			}
+			currentId++;
+		}
+		else
+		{
+			return false;
+		}
 	}
-	else
-		return false;
+	dirty = false;
+	return true;
 }
 
-bool BufferManager::deleteIndexBlock(string tableName, string attr, string indexName) {
-	string path = "data/index" + tableName + attr;
-	string fileName = tableName + attr + indexName;//need to modify
-	unordered_map<string, IndexBlock*>::iterator it = indexBlockMap.find(fileName);
-	if (it != indexBlockMap.end())
+bool BufferPool::writeBackBuffers()
+{
+	if(dirty)
 	{
-		deattach(it->second);
-		delete(it->second);
-		IndexSize--;
-		indexBlockMap.erase(it);
-		string tmp = path + fileName;
-		return remove(tmp.c_str());
+		bool noError = all_of(buffers.begin(), buffers.end(),
+							[](auto page)
+							{
+								return page -> writeBackPage();
+							});
+		dirty = !noError;
+		return noError;
 	}
-	else
-		return false;
+	return true;
+}
+
+void BufferPool::findactivePageId()
+{
+	if (pageFull[activePageId])
+	{
+		for (int i = 0; i < (int)pageFull.size(); i++)
+		{
+
+			if (!pageFull[i])
+			{
+				activePageId = i;
+				return;
+			}
+		}
+		#if DBG
+			cout << "no free buffer!" << endl;
+		#endif
+		addNewBufferToPool();
+		activePageId = buffers.size() - 1;
+		return;
+	}
+	// else
+	return;
+}
+
+int BufferPool::insertData(char * newData)
+{
+	int pageOffset = buffers[activePageId] -> insertDataToPage(newData);
+	int totalOffset = activePageId * PAGE_SIZE + pageOffset;
+	pageFull[activePageId] = buffers[activePageId] -> isFull();
+	findactivePageId();
+	dirty = true;
+	return totalOffset;
+}
+
+char * BufferPool::queryWithOffset(int offset)
+{
+	int id = offset / PAGE_SIZE;
+	int pageOffset = offset % PAGE_SIZE;
+	#if DBG
+		cout << id << " " << pageOffset << endl;
+	#endif
+	return buffers[id] -> readRecordWithOffset(pageOffset);
+}
+
+int BufferPool::getTotalBufferSize()
+{
+	return accumulate(buffers.begin(), buffers.end(), 0,
+						[](int sum, auto page)
+						{
+							return sum + page -> usedLength;
+						});
+}
+
+char * BufferPool::queryAllData()
+{
+	// remember to delete !!!!!!
+	#if DBG
+		cout << "all size: " << getTotalBufferSize() << endl;
+	#endif
+	char * returnData = new char[getTotalBufferSize()];
+	int dataPtr = 0;
+	int pagePtr;
+	for (auto const & page : buffers)
+	{
+		pagePtr = 0;
+		while(pagePtr < page -> usedLength)
+		{
+			returnData[dataPtr++] = page -> data[pagePtr++];
+		}
+	}
+	// printData(returnData, 40);
+	return returnData;
+}
+
+bool BufferPool::deleteWithOffset(int offset)
+{
+	int id = offset / PAGE_SIZE;
+	int pageOffset = offset % PAGE_SIZE;
+	if (id < (int)buffers.size())
+	{
+		return buffers[id] -> deleteWithOffset(pageOffset);
+	}
+	return false;
+}
+
+bool BufferPool::deleteWithCheckFunc(function<bool (char * )> checkDeletionFunction)
+{
+	for_each(buffers.begin(), buffers.end(), [=](auto page)
+												{
+													page -> deleteWithCheckFunc(checkDeletionFunction);
+												});
+	return true;
+}
+
+// ================= BufferManager ======================
+
+void BufferManager::createBufferForTable(TableInfo & table)
+{
+	if (bufferMap.find(table.tableName) == bufferMap.end())
+	{
+		auto newPool = new BufferPool(table);
+		// newPool -> addNewBufferToPool();
+		// newPool -> reloadBuffer();
+		bufferMap[table.tableName] = newPool;
+	}
+}
+
+bool BufferManager::writeBackTable(string table)
+{
+	if (bufferMap.find(table) != bufferMap.end())
+	{
+		return bufferMap[table] -> writeBackBuffers();
+	}
+	return false;
+}
+
+bool BufferManager::reloadTable(string table)
+{
+	if (bufferMap.find(table) != bufferMap.end())
+	{
+		return bufferMap[table] -> reloadBuffer();
+	}
+	return false;
+}
+
+bool BufferManager::writeBackAll()
+{
+	return all_of(bufferMap.begin(), bufferMap.end(),
+					[](auto bufferMapIter)
+					{
+						// cout << bufferMapIter.first;
+						return bufferMapIter.second -> writeBackBuffers();
+					});
+}
+
+int BufferManager::insertIntoTable(string table, char * newData)
+{
+	if (bufferMap.find(table) != bufferMap.end())
+	{
+		return bufferMap[table] -> insertData(newData);
+	}
+	#if DBG
+		cout << "not found!" << endl;
+	#endif
+	return -1;
+}
+
+char * BufferManager::queryTableWithOffset(string table, int offset)
+{
+	if (bufferMap.find(table) != bufferMap.end())
+	{
+		return bufferMap[table] -> queryWithOffset(offset);
+	}
+	return nullptr;
+}
+
+char * BufferManager::queryCompleteTable(string table)
+{
+	if (bufferMap.find(table) != bufferMap.end())
+	{
+		return bufferMap[table] -> queryAllData();
+	}
+	return nullptr;
+}
+
+bool BufferManager::deleteFromTableWithOffset(string table, int offset)
+{
+	if (bufferMap.find(table) != bufferMap.end())
+	{
+		return bufferMap[table] -> deleteWithOffset(offset);
+	}
+	return false;
+}
+
+bool BufferManager::deleteFromTableWithCheckFunc(string table, function<bool (char *)> checkDeletionFunction)
+{
+	if (bufferMap.find(table) != bufferMap.end())
+	{
+		return bufferMap[table] -> deleteWithCheckFunc(checkDeletionFunction);
+	}
+	return false;
 }

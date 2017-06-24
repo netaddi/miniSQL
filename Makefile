@@ -1,5 +1,5 @@
 CC = g++
-Flags = -Wall --std=c++11
+Flags = -Wall --std=c++17 -g
 finalFilename = minisql
 objFiles = main.o parser.o
 srcDir = src/
@@ -21,9 +21,18 @@ cat_test:
 	./test/cat_test
 
 buf_test:
-	$(CC) test/bufManTest.cpp src/BufferManager.cpp src/RecordBlock.cpp -o test/buf_test $(Flags)
+	$(CC) test/bufManTest.cpp src/BufferManager.cpp src/debug.cpp -o test/buf_test $(Flags)
 	./test/buf_test
 
 bpt_test:
 	$(CC) test/bpt_test.cpp -o test/bpt_test $(Flags)
 	./test/bpt_test
+
+
+rec_test:
+	$(CC) test/rec_test.cpp src/RecordManager.cpp src/BufferManager.cpp src/element.cpp src/debug.cpp -o test/rec_test $(Flags)
+	./test/rec_test
+
+ele_test:
+	$(CC) test/ele_test.cpp src/debug.cpp -o test/ele_test $(Flags)
+	./test/ele_test
