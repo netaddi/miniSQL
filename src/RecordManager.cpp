@@ -2,6 +2,12 @@
 #include "stdafx.h"
 // #include "element.h"
 
+
+void Record::addElement(Element * e)
+{
+    elements.push_back(e);
+}
+
 ostream & operator<< (ostream& os, Record & r)
 {
     os << "| ";
@@ -75,7 +81,18 @@ vector<Record> RecordManager::queryWithOffset(TableInfo table, vector<int> offse
 
 vector<Record> RecordManager::queryWithCondition(TableInfo table, vector<QueryBase *> querys)
 {
-
+    char * totalBuffer = bufMan.queryCompleteTable(table.tableName);
+    int totalBufferSize = bufMan.getTableBufferSize(table.tableName);
+    vector<Record> result;
+    for (int bufferIter = 0;  bufferIter < totalBufferSize;  bufferIter+= table.recordLength)
+    {
+        int elementPtr = 0;
+        vector<Element * > elementsInRecord;
+        for (auto & attr : table.attributes )
+        {
+            elementsInRecord.push_back(new Element());
+        }
+    }
 }
 
 bool RecordManager::deleteWithOffset(string table, vector<int> offsets)

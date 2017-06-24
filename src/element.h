@@ -1,4 +1,7 @@
+// #pragma once
+
 #include "stdafx.h"
+// #include "RecordManager.h"
 
 #ifndef _ELEMENT_H_
 #define _ELEMENT_H_
@@ -130,6 +133,13 @@ public:
     };
 
     friend ostream & operator << (ostream& os, const Element & e);
+
+    friend bool operator < (Element & lhs, Element & rhs);
+    friend bool operator > (Element & lhs, Element & rhs);
+    friend bool operator <= (Element & lhs, Element & rhs);
+    friend bool operator >= (Element & lhs, Element & rhs);
+    friend bool operator == (Element & lhs, Element & rhs);
+    friend bool operator != (Element & lhs, Element & rhs);
 };
 
 
@@ -180,29 +190,6 @@ public:
 //
 //
 //
-class QueryBase
-{
-public:
-    virtual bool match() = 0;
-};
-
-template <class T>
-class singleQuery : public QueryBase
-{
-public:
-    T targetData;
-};
-
-template <class T>
-class rangeQuery : public QueryBase
-{
-public:
-    T minData;
-    T maxData;
-    bool minIncluded;
-    bool maxIncluded;
-
-};
 
 // class IntElement : public Element
 // {

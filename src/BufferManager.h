@@ -1,9 +1,13 @@
-#include "stdafx.h"
-#include "element.h"
-#include "debug.h"
+// #pragma once
+
 
 #ifndef _BUFFER_MANAGER_H_
 #define _BUFFER_MANAGER_H_
+
+
+#include "stdafx.h"
+#include "element.h"
+#include "debug.h"
 
 #define PAGE_SIZE (int)(4096 - sizeof(int))
 // #define PAGE_SIZE 22
@@ -96,6 +100,8 @@ public:
     int insertIntoTable(string table, char * newData);
     char * queryTableWithOffset(string table, int offset);
     char * queryCompleteTable(string table);
+    int getTableBufferSize(string table);
+
 
     bool deleteFromTableWithOffset(string table, int offset);
     bool deleteFromTableWithCheckFunc(string table, function<bool (char *)> checkDeletionFunction);

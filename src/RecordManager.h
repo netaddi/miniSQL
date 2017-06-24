@@ -1,26 +1,15 @@
+// #pragma once
+
 #include "stdafx.h"
 #include "BufferManager.h"
+#include "element.h"
+#include "Record.h"
+#include "Queryer.h"
 
 #ifndef _RECORD_MANAGER_H_
 #define _RECORD_MANAGER_H_
 
-class Record
-{
-public:
-    TableInfo table;
-    vector<Element * > elements;
-    int recordLength;
 
-    Record(TableInfo table, vector<Element *> elements):
-        table(table), elements(elements), recordLength(table.recordLength){};
-    Record(TableInfo table):
-        table(table),                     recordLength(table.recordLength){};
-    void addElement(Element * e)
-    {
-        elements.push_back(e);
-    }
-    friend ostream& operator<< (ostream& os, Record & r);
-};
 
 class RecordManager
 {

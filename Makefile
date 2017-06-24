@@ -36,3 +36,8 @@ rec_test:
 ele_test:
 	$(CC) test/ele_test.cpp src/debug.cpp -o test/ele_test $(Flags)
 	./test/ele_test
+
+
+que_test:
+	$(CC) test/que_test.cpp src/debug.cpp src/Queryer.cpp -o test/que_test $(Flags)
+		./test/que_test

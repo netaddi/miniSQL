@@ -362,6 +362,15 @@ char * BufferManager::queryCompleteTable(string table)
 	return nullptr;
 }
 
+int BufferManager::getTableBufferSize(string table)
+{
+	if (bufferMap.find(table) != bufferMap.end())
+	{
+		return bufferMap[table] -> getTotalBufferSize();
+	}
+	return 0;
+}
+
 bool BufferManager::deleteFromTableWithOffset(string table, int offset)
 {
 	if (bufferMap.find(table) != bufferMap.end())
