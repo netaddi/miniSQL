@@ -22,6 +22,8 @@ using std::endl;
 using std::for_each;
 using std::all_of;
 using std::copy;
+using std::find;
+using std::distance;
 
 #include <numeric>
 using std::accumulate;
@@ -31,9 +33,12 @@ using std::function;
 
 #include <typeinfo>
 
+#include <utility>
+using std::pair;
+
 #include "utils.h"
 // #include "element.h"
 
-#define DBG true
+#define DBG false
 
 #endif

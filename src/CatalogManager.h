@@ -47,6 +47,9 @@ public:
     IndexInfo getIndexInfo(string indexName);
     IndexInfo getIndexInfo(string tableName, string attributeName);
 
+    map<string, TableInfo> initializeTables();
+    map<string, IndexInfo> initializeIndexes();
+
 };
 
 #endif

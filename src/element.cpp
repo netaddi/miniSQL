@@ -33,13 +33,17 @@ bool operator < (Element & lhs, Element & rhs)
     //     /* code */
     // }
 
+    // #if DBG
+    //     cout << "inner mode : " << lhs.type * 3 + rhs.type << endl;
+    //     // cout << "inner data : " << lhs.
+    // #endif
     switch (lhs.type * 3 + rhs.type)
     {
         case 0 : return lhs.intData    < rhs.intData;
         case 1 : return lhs.intData    < rhs.floatData;
         case 2 : return false;
         case 3 : return lhs.floatData  < rhs.intData;
-        case 4 : return lhs.floatData  < rhs.intData;
+        case 4 : return lhs.floatData  < rhs.floatData;
         case 5 : return false;
         case 6 : return false;
         case 7 : return false;

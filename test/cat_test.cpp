@@ -34,9 +34,9 @@ int main(int argc, char const *argv[]) {
       << i2.tableName << " "
       << i2.attributeName << std::endl;
     std::cout << "testIndex.exist:" << catMan.checkIndexExistanceWithName("testIndex") << '\n';
-    std::cout << catMan.dropIndexCatalog("testIndex") << '\n';
+    // std::cout << catMan.dropIndexCatalog("testIndex") << '\n';
     std::cout << "testIndex.exist:" << catMan.checkIndexExistanceWithName("testIndex") << '\n';
-    std::cout << catMan.dropTableCatalog("testTable");
+    // std::cout << catMan.dropTableCatalog("testTable");
     // catMan.dropTableCatalog("testTable");
     // std::cout << "catMan.checkTableExistance(\"testTable\")"
     //           << catMan.checkTableExistance("testTable") << '\n';

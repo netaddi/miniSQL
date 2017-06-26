@@ -5,6 +5,7 @@
 // #include "RecordManager.h"
 #include "element.h"
 #include "Record.h"
+//
 
 class QueryBase
 {
@@ -12,15 +13,16 @@ protected:
     string attrName;
 public:
     QueryBase(string attr): attrName(attr){};
-    virtual bool match() = 0;
+    virtual bool match(Record record) = 0;
 };
 
 template <class T>
-class SingleQuery : QueryBase
+class SingleQuery : public QueryBase
 {
 public:
-    SingleQuery(string attrName, T data): QueryBase(attrName), targetData(data){};
+    SingleQuery(string attrName, T data, bool unequal = false): QueryBase(attrName), targetData(data), matchUnequal(unequal){};
     T targetData;
+    bool matchUnequal;
     bool match(Record record);
 };
 
@@ -40,4 +42,17 @@ public:
 
 };
 
+template <class T>
+class infinityRangeQuery : public QueryBase
+{
+public:
+    T seperateData;
+    bool sepInlcluded;
+    bool queryGreaterThan;
+
+    infinityRangeQuery(string attrName, T seperateData, bool sepInlcluded, bool queryGreaterThan):
+        QueryBase(attrName), seperateData(seperateData), sepInlcluded(sepInlcluded), queryGreaterThan(queryGreaterThan){};
+
+    bool match(Record record);
+};
 #endif

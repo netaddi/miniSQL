@@ -12,6 +12,7 @@
 #define PAGE_SIZE (int)(4096 - sizeof(int))
 // #define PAGE_SIZE 22
 
+
 // class for single buffer page
 class BufferPage
 {
@@ -36,6 +37,7 @@ public:
     inline bool isFull();
     bool reloadPage();
     bool writeBackPage();
+    void dropPage();
 
     char * readRecordWithOffset(int offset);
 
@@ -66,6 +68,7 @@ public:
     //     table(table.tableName), recordLength(table.recordLength), dirty(true), bufferCount(0), activePageId(-1){};
 
     void addNewBufferToPool();
+    void dropBufferPool();
 
     bool reloadBuffer();
     bool writeBackBuffers();
@@ -91,6 +94,7 @@ public:
 // public:
 
     void createBufferForTable(TableInfo & table);
+    void dropTableBuffer(string tableName);
 
     bool writeBackAll();
     bool writeBackTable(string table);
@@ -101,7 +105,6 @@ public:
     char * queryTableWithOffset(string table, int offset);
     char * queryCompleteTable(string table);
     int getTableBufferSize(string table);
-
 
     bool deleteFromTableWithOffset(string table, int offset);
     bool deleteFromTableWithCheckFunc(string table, function<bool (char *)> checkDeletionFunction);

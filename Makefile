@@ -30,14 +30,19 @@ bpt_test:
 
 
 rec_test:
-	$(CC) test/rec_test.cpp src/RecordManager.cpp src/BufferManager.cpp src/element.cpp src/debug.cpp -o test/rec_test $(Flags)
+	$(CC) test/rec_test.cpp src/RecordManager.cpp src/BufferManager.cpp src/element.cpp src/debug.cpp src/Queryer.cpp -o test/rec_test $(Flags)
 	./test/rec_test
 
 ele_test:
 	$(CC) test/ele_test.cpp src/debug.cpp -o test/ele_test $(Flags)
 	./test/ele_test
 
-
 que_test:
 	$(CC) test/que_test.cpp src/debug.cpp src/Queryer.cpp -o test/que_test $(Flags)
-		./test/que_test
+	./test/que_test
+
+api_test:
+	$(CC) test/API_test.cpp src/API.cpp \
+	src/element.cpp src/RecordManager.cpp src/CatalogManager.cpp src/BufferManager.cpp src/Queryer.cpp\
+		-o test/api_test $(Flags)
+	./test/api_test

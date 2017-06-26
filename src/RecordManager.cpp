@@ -12,15 +12,15 @@ ostream & operator<< (ostream& os, Record & r)
 {
     os << "| ";
 
-    for (const auto & element : r.elements)
-    {
-        os << *element << " | ";
-    }
+    // for (const auto & element : r.elements)
+    // {
+    //     os << *element << " | ";
+    // }
 
-    // for_each(r.elements.begin(), r.elements.end(), [=](Element * e)
-    //                                                 {
-    //                                                     os << e << "  |";
-    //                                                 })
+    for_each(r.elements.begin(), r.elements.end(), [&](auto e)
+                                                    {
+                                                        os << *e << "  | ";
+                                                    });
 
     os << endl;
     return os;
@@ -29,6 +29,11 @@ ostream & operator<< (ostream& os, Record & r)
 RecordManager::RecordManager()
 {
 
+}
+
+void RecordManager::dropTable(string tableName)
+{
+    bufMan.dropTableBuffer(tableName);
 }
 
 void RecordManager::initTable(TableInfo table)
@@ -81,34 +86,78 @@ vector<Record> RecordManager::queryWithOffset(TableInfo table, vector<int> offse
 
 vector<Record> RecordManager::queryWithCondition(TableInfo table, vector<QueryBase *> querys)
 {
+    vector<Record> result;
     char * totalBuffer = bufMan.queryCompleteTable(table.tableName);
     int totalBufferSize = bufMan.getTableBufferSize(table.tableName);
-    vector<Record> result;
     for (int bufferIter = 0;  bufferIter < totalBufferSize;  bufferIter+= table.recordLength)
     {
         int elementPtr = 0;
         vector<Element * > elementsInRecord;
-        for (auto & attr : table.attributes )
+        // for (auto & attr : table.attributes )
+        // {
+        //     Element * tempElement = new Element(attr.type, attr.size, totalBuffer + bufferIter + elementPtr);
+        // }
+        for_each(table.attributes.begin(), table.attributes.end(), [&](auto attr)
+                {
+                    elementsInRecord.push_back(new Element(attr.type, attr.size, totalBuffer + bufferIter + elementPtr));
+                    elementPtr += attr.size;
+                });
+        Record thisRecord(table, elementsInRecord);
+        bool matched = accumulate(querys.begin(), querys.end(), true, [&](bool matched, auto query)
+                                                                            {
+                                                                                #if DBG
+                                                                                    cout << "checking " << thisRecord << "result : " << query -> match(thisRecord) << endl;
+                                                                                #endif
+                                                                                return matched && query -> match(thisRecord);
+                                                                            });
+        if (matched)
         {
-            Element * tempElement = new Element(attr.type, attr.size, totalBuffer + bufferIter + elementPtr);
-            bool matchFail = false;
-            for (auto & query : querys)
-            {
-
-            }
-
-            elementsInRecord.push_back();
-            elementPtr += attr.size;
+            result.push_back(thisRecord);
         }
     }
+    return result;
 }
 
 bool RecordManager::deleteWithOffset(string table, vector<int> offsets)
 {
-
+    return accumulate(offsets.begin(), offsets.end(), true, [=](bool success, int offset)
+            {
+                return success && bufMan.deleteFromTableWithOffset(table, offset);
+            });
+    // for_each(offsets.begin(), offsets.end(), [](auto offset)
+    //                                             {
+    //
+    //                                             });
+    // return bufMan -> deleteFromTableWithOffset(table, );
 }
 
-bool RecordManager::deleteWithCondition(string table, vector<QueryBase *> querys)
-{
 
+int RecordManager::deleteWithCondition(TableInfo table, vector<QueryBase *> querys)
+{
+    int totalBufferSize = bufMan.getTableBufferSize(table.tableName);
+    int deleteCount = 0;
+    for (int bufferIter = 0;  bufferIter < totalBufferSize;  bufferIter+= table.recordLength)
+    {
+        bufMan.deleteFromTableWithCheckFunc(table.tableName, [&](char * recordBuffer)
+        {
+            int elementPtr = 0;
+            vector<Element * > elementsInRecord;
+            for_each(table.attributes.begin(), table.attributes.end(), [&](auto attr)
+                {
+                    elementsInRecord.push_back(new Element(attr.type, attr.size, recordBuffer));
+                    elementPtr += attr.size;
+                });
+            Record tempRecord(table, elementsInRecord);
+            if( accumulate(querys.begin(), querys.end(), true, [&](bool matched, auto query)
+                {
+                    return matched && query -> match(tempRecord);
+                }) )
+            {
+                deleteCount ++ ;
+                return true;
+            }
+            return false;
+        });
+    }
+    return deleteCount;
 }

@@ -208,3 +208,36 @@ TableInfo CatalogManager::getTableInfo(string tableName)
     TableInfo returnTable(_table, _primaryKey, _attributes);
     return returnTable;
 }
+
+
+map<string, TableInfo> CatalogManager::initializeTables()
+{
+    map<string, TableInfo> result;
+
+    ifstream tableListFile;
+    tableListFile.open(tableInfoFilename);
+    string tableName;
+    while(getline(tableListFile, tableName))
+    {
+        // result[tableName] = getTableInfo(tableName);
+        result.insert(std::pair<string, TableInfo> (tableName, getTableInfo(tableName)));
+    }
+
+    return result;
+}
+
+map<string, IndexInfo> CatalogManager::initializeIndexes()
+{
+    map<string, IndexInfo> result;
+
+    ifstream indexListFile;
+    indexListFile.open(indexInfoCatalog);
+    string indexName;
+    while(getline(indexListFile, indexName))
+    {
+        // result[indexName] = getIndexInfo(indexName);
+        result.insert(std::pair<string, IndexInfo> (indexName, getIndexInfo(indexName)));
+    }
+
+    return result;
+}

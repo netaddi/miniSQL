@@ -9,6 +9,9 @@
 #define INT_SIZE    (int)sizeof(int)
 #define FLOAT_SIZE  (int)sizeof(float)
 
+#define INVALID_CHAR_DATA 127
+#define INVALID_INT_DATA (int)0x7F7F7F7F
+
 typedef char * dbString;
 
 enum dataTypes { INT, FLOAT, STRING };
@@ -52,6 +55,7 @@ public:
     // int attributeCount;
     vector<Attribute> attributes;
     int recordLength;
+    TableInfo(){};
     TableInfo(string tableName, string primaryKey, vector<Attribute> attrs):
         tableName(tableName), primaryKey(primaryKey), attributes(attrs),
         recordLength(accumulate(attrs.begin(), attrs.end(), 0,

@@ -19,11 +19,12 @@ public:
     RecordManager();
 
     void initTable(TableInfo table);
+    void dropTable(string tableName);
     int insert(Record record);
     vector<Record> queryWithOffset(TableInfo table, vector<int> offsets);
     vector<Record> queryWithCondition(TableInfo table, vector<QueryBase *> querys);
     bool deleteWithOffset(string table, vector<int> offsets);
-    bool deleteWithCondition(string table, vector<QueryBase *> querys);
+    int deleteWithCondition(TableInfo table, vector<QueryBase *> querys);
 };
 
 

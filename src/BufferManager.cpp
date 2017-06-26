@@ -17,6 +17,11 @@ inline bool BufferPage::isFull()
 	return (usedLength + recordLength >= PAGE_SIZE);
 }
 
+void BufferPage::dropPage()
+{
+	remove(pageFileName.c_str());
+}
+
 bool BufferPage::writeBackPage()
 {
 	#if DBG
@@ -96,7 +101,7 @@ bool BufferPage::deleteWithOffset(int offset)
 	{
 		for (int i = 0; i < recordLength; i++)
 		{
-			data[offset + i] = 255;
+			data[offset + i] = INVALID_CHAR_DATA;
 		}
 	}
 	return true;
@@ -123,7 +128,9 @@ BufferPool::BufferPool(TableInfo & table):
 	activePageId = 0;
 	validPageLength = PAGE_SIZE - (PAGE_SIZE % recordLength);
 	reloadBuffer();
-	cout << "size: " << buffers.size() << endl;
+	#if DBG
+		cout << "size: " << buffers.size() << endl;
+	#endif
 	if (buffers.size() == 0)
 	{
 		#if DBG
@@ -154,6 +161,15 @@ void BufferPool::addNewBufferToPool()
 	// bufferCount++;
 	dirty = true;
 };
+
+void BufferPool::dropBufferPool()
+{
+	for_each(buffers.begin(), buffers.end(), [](auto page)
+											 {
+												 page -> dropPage();
+												 delete page;
+											 });
+}
 
 bool BufferPool::reloadBuffer()
 {
@@ -301,6 +317,16 @@ void BufferManager::createBufferForTable(TableInfo & table)
 		// newPool -> addNewBufferToPool();
 		// newPool -> reloadBuffer();
 		bufferMap[table.tableName] = newPool;
+	}
+}
+
+void BufferManager::dropTableBuffer(string tableName)
+{
+	if (bufferMap.find(tableName) == bufferMap.end())
+	{
+		bufferMap[tableName] -> dropBufferPool();
+		delete bufferMap[tableName];
+		bufferMap.erase(tableName);
 	}
 }
 
