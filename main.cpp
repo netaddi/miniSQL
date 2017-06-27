@@ -1,26 +1,16 @@
-#include <iostream>
-using std::cin;
-using std::cout;
-using std::string;
-using std::getline;
-#include <fstream>
-using std::ifstream;
-#include <vector>
-using std::vector;
-
+// #include "src/stdafx.h"
 #include "src/parser.h"
-#include "src/utils.h"
-
 
 int main(int argc, char const * argv[])
 {
+	Parser p;
 	if (argc > 1) // execute file
 	{
-		parseFile(argv[1]);
+		p.parseFile(argv[1]);
 	}
 	else // command line mode
 	{
-		commandOperation();
+		p.commandOperation();
 	}
 	return 0;
 }

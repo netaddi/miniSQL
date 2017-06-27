@@ -9,10 +9,8 @@ create table classroom
 create table department
 	(
 	id int,
-	dept_name char(20), 
-	building char(15), 
+	dept_name char(20),
+	building char(15),
 	budget  int,
 	primary key (id)
 	);
-
-	 

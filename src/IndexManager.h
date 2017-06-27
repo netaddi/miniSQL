@@ -3,6 +3,7 @@
 #define _INDEXMANAGER_H_
 #include "element.h"
 #include "stdafx.h"
+#include "BPlusTree.h"
 // template <class T>
 // class IndexQuery
 // {

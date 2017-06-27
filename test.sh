@@ -1,1 +1,1 @@
-make && make clean && ./minisql ./testSQL/test.sql
+make && ./minisql ./testSQL/test.sql

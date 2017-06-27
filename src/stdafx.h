@@ -17,6 +17,7 @@ using std::ios;
 using std::cout;
 using std::cin;
 using std::endl;
+using std::istringstream;
 
 #include <algorithm>
 using std::for_each;
@@ -35,6 +36,10 @@ using std::function;
 
 #include <utility>
 using std::pair;
+
+#include <regex>
+using std::regex;
+using std::regex_replace;
 
 #include "utils.h"
 // #include "element.h"
