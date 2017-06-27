@@ -2,7 +2,7 @@ CC = g++
 Flags = -Wall --std=c++17 -g
 finalFilename = minisql
 objFiles = main.o BufferManager.o CatalogManager.o element.o parser.o IndexManager.o \
-			Queryer.o Record.o RecordManager.o
+			Queryer.o Record.o RecordManager.o API.o
 srcDir = src/
 
 final: $(objFiles)
@@ -11,6 +11,9 @@ final: $(objFiles)
 
 main.o : main.cpp
 	$(CC) main.cpp -c $(Flags)
+
+API.o : src/API.cpp src/API.h
+	$(CC) src/API.cpp -c $(Flags)
 
 parser.o : src/parser.h src/parser.cpp
 	$(CC) src/parser.cpp -c $(Flags)

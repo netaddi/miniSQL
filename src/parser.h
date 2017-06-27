@@ -1,22 +1,24 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 #include "stdafx.h"
+#include "API.h"
 // #include
 
 class Parser
 {
 private:
+	API dbAPI;
 	void parseSQL(string sqlStatement);
 
-	void parseCreateTable(istringstream inputSQLStream);
-	void parseDropTable(istringstream inputSQLStream);
+	void parseCreateTable(string statement);
+	void parseDropTable(string statement);
 
-	void parseCreateIndex(istringstream inputSQLStream);
-	void parseDropIndex(istringstream inputSQLStream);
+	void parseCreateIndex(string statement);
+	void parseDropIndex(string statement);
 
-	void parseSelect(istringstream inputSQLStream);
-	void parseInsert(istringstream inputSQLStream);
-	void parseDelete(istringstream inputSQLStream);
+	void parseSelect(string statement);
+	void parseInsert(string statement);
+	void parseDelete(string statement);
 
 public:
 	Parser(){};

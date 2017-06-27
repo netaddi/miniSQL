@@ -7,11 +7,11 @@ int main(int argc, char const *argv[])
     // test CREATE TABLE
     // ==================================
     cout << "============ table operation test ==============" << endl;
-    TableInfo t("testTable", "id",
-            {Attribute("id", "int", true),
-             Attribute("float", "float", true),
-             Attribute("user", 8, true),
-             Attribute("password", 8, false)});
+    TableInfo t("student", "id",
+            {Attribute("id", INT, sizeof(int), true),
+             Attribute("float", FLOAT, sizeof(float), true),
+             Attribute("name", STRING, 32, false)
+            });
 
 
     cout << "----result of create table testTable: " << endl;

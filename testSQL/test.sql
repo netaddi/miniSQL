@@ -1,16 +1,12 @@
-create table classroom
-	(
-	building    char(15),
-	room_number char(7),
-	capacity	 int,
-	primary key (room_number)
+create table student 
+	( 
+		id int unique,
+		name varchar(32), 
+		score float,
+		primary key(id)
 	);
 
-create table department
-	(
-	id int,
-	dept_name char(20),
-	building char(15),
-	budget  int,
-	primary key (id)
-	);
+insert into student 
+	values (1, "Wei Jiarong", 59.9); 
+
+select * from student;
