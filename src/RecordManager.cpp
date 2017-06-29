@@ -144,7 +144,7 @@ int RecordManager::deleteWithCondition(TableInfo table, vector<QueryBase *> quer
             vector<Element * > elementsInRecord;
             for_each(table.attributes.begin(), table.attributes.end(), [&](auto attr)
                 {
-                    elementsInRecord.push_back(new Element(attr.type, attr.size, recordBuffer));
+                    elementsInRecord.push_back(new Element(attr.type, attr.size, recordBuffer + elementPtr));
                     elementPtr += attr.size;
                 });
             Record tempRecord(table, elementsInRecord);
@@ -160,4 +160,9 @@ int RecordManager::deleteWithCondition(TableInfo table, vector<QueryBase *> quer
         });
     }
     return deleteCount;
+}
+
+void RecordManager::writeBackAll()
+{
+    bufMan.writeBackAll();
 }

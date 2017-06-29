@@ -93,6 +93,7 @@ public:
     int intData;
     float floatData;
     string stringData;
+    bool valid = true;
 
     int type;
     int size;
@@ -105,6 +106,27 @@ public:
     Element(int data): intData(data), type(INT), size(sizeof(data)){};
     Element(float data): floatData(data), type(FLOAT), size(sizeof(data)){};
     Element(string data): stringData(data), type(STRING), size(data.size()){};
+    void resize(int newSize)
+    {
+        size = newSize;
+    }
+
+    void reinterpret(int newType)
+    {
+        switch(newType)
+        {
+            case INT:
+                type = INT;
+                intData = stoi(stringData);
+                size = sizeof(int);
+                return;
+            case FLOAT:
+                type = FLOAT;
+                floatData = stof(stringData);
+                size = sizeof(float);
+                return;
+        }
+    }
 
     char * getBitToBuffer()
     {
@@ -122,6 +144,11 @@ public:
 
     void retriveFromBit(char * sourceBit)
     {
+        if (*(int *)sourceBit == INVALID_INT_DATA)
+        {
+            valid = false;
+            return;
+        }
         switch(type)
         {
             case INT:

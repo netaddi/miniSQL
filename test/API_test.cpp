@@ -34,16 +34,16 @@ int main(int argc, char const *argv[])
                                new Element("123a1111"),
                                new Element("abcdefg")});
     Record r(t, newItem);
-    dbAPI.insertInto(t.tableName, r);
+    dbAPI.insertInto(t.tableName, newItem);
     cout << "----insert new data 2 " << endl;
     vector<Element *> newItem1({new Element(10),
                               new Element((float)123.46),
                               new Element("123a"),
                               new Element("abcdef")});
     Record r1(t, newItem1);
-    dbAPI.insertInto(t.tableName, r1);
+    dbAPI.insertInto(t.tableName, newItem1);
     cout << "----insert repeated data " << endl;
-    dbAPI.insertInto(t.tableName, r);
+    dbAPI.insertInto(t.tableName, newItem1);
 
     // ======================================
     //  test select
@@ -66,6 +66,8 @@ int main(int argc, char const *argv[])
     // print after delete
     cout << "----select after delete" << endl;
     dbAPI.selectFrom(string("testTable"), vector<string>({"float", "id", "user"}), queryVec);
+    // dbAPI.selectFrom(string("student"), vector<string>({"float", "id", "user"}), {});
+
 
 
     return 0;

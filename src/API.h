@@ -25,15 +25,19 @@ private:
 public:
     API();
 
+    void writeBackAll();
+
     void createTable(TableInfo newTable);
     void deleteTable(string tableName);
 
     void createIndex(IndexInfo newIndex);
     void deleteIndex(string indexName);
 
-    void insertInto(string table, Record newRecord);
+    void insertInto(string table, vector<Element *> elements);
     void deleteFrom(string table, vector<QueryBase*> Querys);
     void selectFrom(string table, vector<string> columns, vector<QueryBase*> Querys);
+    int getAttributeType(string table, string attr);
+    int getAttributeSize(string table, string attr);
 };
 
 #endif

@@ -45,5 +45,7 @@ using std::regex_replace;
 // #include "element.h"
 
 #define DBG false
+#define PRS_TEST_MODE true
+
 
 #endif

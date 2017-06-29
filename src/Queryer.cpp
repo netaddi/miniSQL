@@ -37,7 +37,7 @@ bool SingleQuery<T>::match(Record record)
         if (record.table.attributes[attrIter].name == attrName)
         {
             #if DBG
-                cout << "thisElement: " << (*record.elements[attrIter]) << " target : " << elementToCompare << endl;
+                cout << "thisElement: " << (*record.elements[attrIter]) << " target : " << elementToCompare << "----" << endl;
                 cout << ((*record.elements[attrIter]) ==  elementToCompare) << endl;
                 // cout << "inv value:" << INVALID_INT_DATA << endl;
             #endif

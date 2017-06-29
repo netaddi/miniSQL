@@ -20,7 +20,13 @@ public:
         table(table),                     recordLength(table.recordLength){};
     void addElement(Element * e);
     friend ostream& operator<< (ostream& os, Record & r);
-
+    bool validate()
+    {
+    	return accumulate(elements.begin(), elements.end(), false, [](bool valid, auto elementPtr)
+    																{
+    																	return (valid || elementPtr -> valid);
+    																});
+	};
 };
 
 

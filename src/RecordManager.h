@@ -25,6 +25,8 @@ public:
     vector<Record> queryWithCondition(TableInfo table, vector<QueryBase *> querys);
     bool deleteWithOffset(string table, vector<int> offsets);
     int deleteWithCondition(TableInfo table, vector<QueryBase *> querys);
+
+ 	void writeBackAll();
 };
 
 

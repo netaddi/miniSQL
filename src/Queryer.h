@@ -52,6 +52,30 @@ public:
 
     infinityRangeQuery(string attrName, T seperateData, bool sepInlcluded, bool queryGreaterThan):
         QueryBase(attrName), seperateData(seperateData), sepInlcluded(sepInlcluded), queryGreaterThan(queryGreaterThan){};
+    infinityRangeQuery(string attrName, T seperateData, string comparator):
+        QueryBase(attrName), seperateData(seperateData)
+        {
+            if (comparator == ">")
+            {
+                sepInlcluded = false;
+                queryGreaterThan = true;
+            }
+            if (comparator == "<")
+            {
+                sepInlcluded = false;
+                queryGreaterThan = false;
+            }
+            if (comparator == ">=")
+            {
+                sepInlcluded = true;
+                queryGreaterThan = true;
+            }
+            if (comparator == "<=")
+            {
+                sepInlcluded = true;
+                queryGreaterThan = false;
+            }
+        };
 
     bool match(Record record);
 };
