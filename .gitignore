@@ -1,4 +1,6 @@
-data/*
+*.cat
+data/catlog/*
+data/record/*
 
 # Prerequisites
 *.d
