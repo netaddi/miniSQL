@@ -26,11 +26,11 @@ private:
     bool dropLineFromFile(string filename, string element, int elementCount);
     bool checkLineExistance(string filename, string lineToCheck);
 
-    string getPrimaryKeyIndexName(TableInfo table);
 public:
     // CatalogManager();
     // ~CatalogManager();
 
+    string getPrimaryKeyIndexName(TableInfo table);
     // return true if success
     bool createTableCatalog(TableInfo tableInfo);
     bool dropTableCatalog(string tableName);

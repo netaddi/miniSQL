@@ -17,10 +17,10 @@ void Parser::parseFile(string filename)
 		{
             // sqlCommand += " ;";
 	        sqlCommand = regex_replace(sqlCommand, regex("^\\s+"), "");
-			// #if !PRS_TEST_MODE
+			#if !PRS_TEST_MODE
 	            cout << "\n--Excecuting SQL statement: \n" << sqlCommand << ";\n";
 				cout << "--result :\n";
-			// #endif
+			#endif
 			parseSQL(sqlCommand);
 		}
 		dbAPI.writeBackAll();
@@ -54,6 +54,7 @@ void Parser::commandOperation()
 		{
 			break;
 		}
+		sqlCommand.pop_back();
 		parseSQL(sqlCommand);
 	}
 };

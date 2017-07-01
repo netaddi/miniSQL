@@ -1,4 +1,3 @@
-// #include "src/stdafx.h"
 #include "src/parser.h"
 
 int main(int argc, char const * argv[])

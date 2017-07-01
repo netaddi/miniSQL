@@ -4,15 +4,24 @@ API::API()
 {
     cout << "Initializing... ";
     tableMap = catMan.initializeTables();
+    indexMap = catMan.initializeIndexes();
+
     for (auto & tableIter: tableMap)
     {
         recMan.initTable(tableIter.second);
     }
 
-    indexMap = catMan.initializeIndexes();
-
-    // to do : create index.
-
+    for (auto & indexIter : indexMap)
+    {
+        idxMan.createIndex(indexIter.second);
+        vector<Record> allRecords = recMan.queryWithCondition(tableMap[indexIter.second.indexName], {});
+        int offset = 0;
+        for_each(allRecords.begin(), allRecords.end(), [&](auto record)
+        {
+           idxMan.insertIntoIndex(indexIter.second, record[indexIter.second.attributeName], offset);
+           offset += tableMap[indexIter.second.indexName].recordLength;
+        });
+    }
     cout << "Done. " << endl;
 }
 
@@ -33,6 +42,7 @@ void API::createTable(TableInfo newTable)
         // to do : create index for primary key.
         tableMap.insert(pair<string, TableInfo>(newTable.tableName, newTable));
         recMan.initTable(newTable);
+        idxMan.createIndex(IndexInfo(newTable.tableName, newTable.primaryKey, catMan.getPrimaryKeyIndexName(newTable)));
         cout << "Successfully created table " << newTable.tableName << endl;
         return;
     }
@@ -149,8 +159,16 @@ void API::insertInto(string table, vector<Element *> elements)
         attrIter ++ ;
     }
     Record newRecord(tableMap[table], elements);
-    if(recMan.insert(newRecord) >= 0)
+    int offset = recMan.insert(newRecord);
+    if(offset >= 0)
     {
+        for (auto & indexIter : indexMap)
+        {
+            if (indexIter.second.tableName == table)
+            {
+                idxMan.insertIntoIndex(indexIter.second, newRecord[indexIter.second.attributeName], offset);
+            }
+        }
         #if !PRS_TEST_MODE
             cout << "Successfully inserted to table " << table << endl;
         #endif
@@ -168,6 +186,7 @@ void API::deleteFrom(string table, vector<QueryBase*> Querys)
         return;
     }
     cout << "deleted " << recMan.deleteWithCondition(tableMap[table], Querys) << " rows." << endl;
+    
 }
 
 void API::selectFrom(string table, vector<string> columns, vector<QueryBase*> Querys)

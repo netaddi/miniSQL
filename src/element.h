@@ -102,7 +102,7 @@ public:
     {
         retriveFromBit(sourceBit);
     };
-
+    Element(){};
     Element(int data): intData(data), type(INT), size(sizeof(data)){};
     Element(float data): floatData(data), type(FLOAT), size(sizeof(data)){};
     Element(string data): stringData(data), type(STRING), size(data.size()){};
@@ -165,11 +165,11 @@ public:
 
     friend ostream & operator << (ostream& os, const Element & e);
 
-    friend bool operator < (Element & lhs, Element & rhs);
-    friend bool operator > (Element & lhs, Element & rhs);
+    friend bool operator < (const Element & lhs, const Element & rhs);
+    friend bool operator > (const Element & lhs, const Element & rhs);
     friend bool operator <= (Element & lhs, Element & rhs);
     friend bool operator >= (Element & lhs, Element & rhs);
-    friend bool operator == (Element & lhs, Element & rhs);
+    friend bool operator == (const Element & lhs, const Element & rhs);
     friend bool operator != (Element & lhs, Element & rhs);
 };
 

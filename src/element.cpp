@@ -11,7 +11,7 @@ ostream & operator << (ostream& os, const Element & e)
     return os;
 }
 
-bool operator < (Element & lhs, Element & rhs)
+bool operator < (const Element & lhs, const Element & rhs)
 {
     // if (lhs.type == rhs.type)
     // {
@@ -52,7 +52,7 @@ bool operator < (Element & lhs, Element & rhs)
     return false;
 }
 
-bool operator > (Element & lhs, Element & rhs)
+bool operator > (const Element & lhs, const Element & rhs)
 {
     return rhs < lhs;
 }
@@ -67,7 +67,7 @@ bool operator >= (Element & lhs, Element & rhs)
     return !(lhs < rhs);
 }
 
-bool operator == (Element & lhs, Element & rhs)
+bool operator == (const Element & lhs, const Element & rhs)
 {
     return (!(lhs > rhs)) && (!(lhs < rhs));
 }
