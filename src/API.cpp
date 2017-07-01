@@ -54,7 +54,7 @@ void API::deleteTable(string tableName)
 {
     if (tableMap.find(tableName) == tableMap.end())
     {
-        cout << "Failed to drop table: Table " << tableName << " doe not exist! " << endl;
+        cout << "Failed to drop table: Table " << tableName << " does not exist! " << endl;
         return;
     }
     if( catMan.dropTableCatalog(tableName) )
@@ -97,7 +97,7 @@ void API::deleteIndex(string indexName)
 {
     if (indexMap.find(indexName) == indexMap.end())
     {
-        cout << "Failed to drop index: Index " << indexName << " doe not exist! " << endl;
+        cout << "Failed to drop index: Index " << indexName << " does not exist! " << endl;
         return;
     }
     if( catMan.dropIndexCatalog(indexName) )
@@ -185,8 +185,14 @@ void API::deleteFrom(string table, vector<QueryBase*> Querys)
         cout << "Error at select : Table " << table << " does not exist! " << endl;
         return;
     }
-    cout << "deleted " << recMan.deleteWithCondition(tableMap[table], Querys) << " rows." << endl;
-    
+    if (recMan.deleteWithCondition(tableMap[table], Querys))
+    {
+        cout << "Successfully performed deletion. " << '\n';
+        return ;
+    }
+
+    cout << "No record deleted.";
+
 }
 
 void API::selectFrom(string table, vector<string> columns, vector<QueryBase*> Querys)

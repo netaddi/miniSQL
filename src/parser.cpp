@@ -34,28 +34,30 @@ void Parser::parseFile(string filename)
 
 void Parser::commandOperation()
 {
-	string sqlCommand;
-	while(true)
+	string sqlCommand = "";
+	string commandAppended = "";
+	cout << "sql>";
+	while (getline(cin, commandAppended))
 	{
-		string commandAppended = "";
-		sqlCommand = "";
-		cout << "sql>";
-		while(true)
+		commandAppended = regex_replace(commandAppended, regex("\\s$"), "");
+		sqlCommand += commandAppended + ' ';
+		// cout << "---" << commandAppended << "---\n";
+		if (commandAppended.back() == ';')
 		{
-			getline(cin, commandAppended);
-			sqlCommand += commandAppended + " ";
-			if (commandAppended.back() == ';')
+			sqlCommand.pop_back();
+			sqlCommand.pop_back();
+			if (sqlCommand == "exit")
 			{
-				break;
+				return;
 			}
-			cout << "->";
+			cout << '\n';
+			parseSQL(sqlCommand);
+			sqlCommand = "";
+			commandAppended = "";
+			cout << "sql>";
+			continue;
 		}
-		if (sqlCommand == "exit;")
-		{
-			break;
-		}
-		sqlCommand.pop_back();
-		parseSQL(sqlCommand);
+		cout << "\n->";
 	}
 };
 

@@ -322,7 +322,7 @@ void BufferManager::createBufferForTable(TableInfo & table)
 
 void BufferManager::dropTableBuffer(string tableName)
 {
-	if (bufferMap.find(tableName) == bufferMap.end())
+	if (bufferMap.find(tableName) != bufferMap.end())
 	{
 		bufferMap[tableName] -> dropBufferPool();
 		delete bufferMap[tableName];
