@@ -1,5 +1,5 @@
 CC = g++
-Flags = -Wall --std=c++14 -g
+Flags = -Wall --std=c++14 -O3
 finalFilename = minisql
 objFiles = main.o BufferManager.o CatalogManager.o element.o parser.o IndexManager.o \
 			Queryer.o Record.o RecordManager.o API.o

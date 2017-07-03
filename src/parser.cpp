@@ -11,6 +11,7 @@ void Parser::parseFile(string filename)
 		string fileContent(
 			(std::istreambuf_iterator<char>(sqlFileStream)),
 			(std::istreambuf_iterator<char>()));
+		fileContent = regex_replace(fileContent, regex("\\s*$"), "");
 		vector<string> SQLcommandVector = split<string>(fileContent, ";");
 
 		for(auto & sqlCommand : SQLcommandVector)
@@ -315,7 +316,7 @@ void Parser::parseSelect(string statement)
 				finalValueToken = valueStartToken;
 			}
 			// to do : reinterpret value.
-			QueryBase * thisQuery;
+			QueryBase * thisQuery = nullptr;
 			if (compratorToken == "=" || compratorToken == "!=")
 			{
 				switch (dbAPI.getAttributeType(tableName, compareAttribute))
@@ -398,7 +399,7 @@ void Parser::parseDelete(string statement)
 				finalValueToken = valueStartToken;
 			}
 			// to do : reinterpret value.
-			QueryBase * thisQuery;
+			QueryBase * thisQuery = nullptr;
 			if (compratorToken == "=" || compratorToken == "!=")
 			{
 				switch (dbAPI.getAttributeType(tableName, compareAttribute))
