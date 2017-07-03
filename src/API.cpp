@@ -150,9 +150,9 @@ void API::insertInto(string table, vector<Element *> elements)
 
             if (recMan.queryWithCondition(tableMap[table], vector<QueryBase *> ({uniQuery})).size() > 0)
             {
-                #if !PRS_TEST_MODE
-                    cout << "Error at insert : value of unique attribute " << attr.name << " repeated. " << endl;
-                #endif
+                // #if !PRS_TEST_MODE
+                // #endif
+                cout << "Error at insert : value of unique attribute " << attr.name << " repeated. " << endl;
                 return;
             }
         }
@@ -169,9 +169,9 @@ void API::insertInto(string table, vector<Element *> elements)
                 idxMan.insertIntoIndex(indexIter.second, newRecord[indexIter.second.attributeName], offset);
             }
         }
-        #if !PRS_TEST_MODE
-            cout << "Successfully inserted to table " << table << endl;
-        #endif
+        // #if !PRS_TEST_MODE
+        cout << "Successfully inserted to table " << table << endl;
+        // #endif/
         return ;
     }
     cout << "Failed to insert into table " << table << endl;

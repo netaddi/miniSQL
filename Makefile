@@ -39,7 +39,7 @@ RecordManager.o : src/RecordManager.h src/RecordManager.cpp src/stdafx.h
 	$(CC) src/RecordManager.cpp -c $(Flags)
 
 clean:
-	rm *.o src/*.gch
+	rm *.o
 
 
 # ==========================================
