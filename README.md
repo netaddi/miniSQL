@@ -2,7 +2,7 @@
 
 this is the repo for miniSQL project in ZJU.
 
-## SQL functions to implement:
+## SQL functions implemented:
 1. create table
 2. drop table
 3. create index
